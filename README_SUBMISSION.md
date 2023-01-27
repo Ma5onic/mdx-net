@@ -101,6 +101,43 @@ Pitch Shift and Time Stretch [2]
 
 - After training the 4 models, rename the best ```.onnx``` files to '{source_name}.onnx' for each source ('vocals.onnx', 'bass.onnx', etc.), then copy them to the 'onnx' directory in the [submission repository](https://github.com/kuielab/mdx-net-submission/tree/leaderboard_B/model)
 
+- You can resume training with:
+```py
+python run.py +trainer.resume_from_checkpoint="/absolute/path/to/ckpt/name.ckpt"
+```
+Or you can edit your experiment yaml config's `trainer` to point to your checkpoint:
+```yaml
+trainer:
+  gpus: '0,1'
+  resume_from_checkpoint: "/home/ielab/PycharmProjects/mdx-net/logs/runs/vocals/2021-10-29/14-46-43/checkpoints/last.ckpt"
+```
+
+
+#### Debugging
+```py
+# run 1 train, val and test loop, using only 1 batch
+python run.py debug=true
+
+# print full weight summary of all PyTorch modules
+python run.py trainer.weights_summary="full"
+
+# print execution time profiling after training ends
+python run.py +trainer.profiler="simple"
+
+# raise exception, if any of the parameters or the loss are NaN or +/-inf
+python run.py +trainer.terminate_on_nan=true
+
+# try overfitting to 1 batch
+python run.py +trainer.overfit_batches=1 trainer.max_epochs=20
+
+# use only 20% of the data
+python run.py +trainer.limit_train_batches=0.2 \
++trainer.limit_val_batches=0.2 +trainer.limit_test_batches=0.2
+
+# log second gradient norm of the model
+python run.py +trainer.track_grad_norm=2
+```
+
 ### 3. Phase 2
 
 We did not train ```Mixer``` for the model used in Leaderboard B.
